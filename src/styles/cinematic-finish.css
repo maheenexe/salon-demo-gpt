@@ -127,3 +127,20 @@ body{background:#080706}
   background:linear-gradient(rgba(10,7,4,.42),rgba(10,7,4,.42)),
              linear-gradient(90deg,rgba(7,5,3,.68),transparent 34%,transparent 66%,rgba(7,5,3,.62));
 }
+
+/* Modern cinematic timeline owns narrative overlays; hide legacy caption layer.
+   The original elements remain available if JS fails or motion is reduced. */
+.tour.is-cinematic .tour-caption,
+.tour.is-cinematic .mirror-chips,
+.tour.is-cinematic .tour-progress{display:none}
+.cinematic-story .story-heading{
+  font-size:clamp(42px,7.2vw,105px);
+  max-width:960px;margin-inline:auto;
+}
+.cinematic-story::before{
+  content:"";position:absolute;inset:-16% -9%;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(2,2,2,.56) 0%,rgba(3,2,2,.32) 37%,transparent 72%);
+}
+@media(max-width:760px){
+  .cinematic-story .story-heading{font-size:clamp(39px,11.3vw,68px)}
+}
