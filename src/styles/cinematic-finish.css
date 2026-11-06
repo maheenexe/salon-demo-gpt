@@ -116,3 +116,14 @@ body{background:#080706}
   .cinematic-reveal-image{filter:none!important;transform:none!important}
   .intro-photo img,.gallery img,.bridal-img img,.card img{will-change:auto}
 }
+
+/* The legacy overflow-x:hidden on html/body creates a scroll container and can
+   break sticky positioning of the six-screen cinematic hero. 'clip' does not. */
+@supports (overflow:clip){
+  html,body{overflow-x:clip}
+}
+.tour-sticky{position:-webkit-sticky;position:sticky;top:0}
+.cinematic-reveal-image::after{
+  background:linear-gradient(rgba(10,7,4,.42),rgba(10,7,4,.42)),
+             linear-gradient(90deg,rgba(7,5,3,.68),transparent 34%,transparent 66%,rgba(7,5,3,.62));
+}
