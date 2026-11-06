@@ -767,7 +767,11 @@
       var sway = reduced ? 0 : 1;
       /* Heavyweight luxury lerp interpolation (0.065 within requested 0.05 - 0.08) */
       var targetProgress = (typeof window !== 'undefined' && typeof window.tourProgress === 'number') ? window.tourProgress : 0;
-      smoothP += (targetProgress - smoothP) * 0.065;
+      // GSAP already smooths scroll progress. Avoid a second delayed smoothing pass
+      // that would cause geometry to trail behind the cinematic transition.
+      smoothP = window.__cinematicScrollActive
+        ? targetProgress
+        : smoothP + (targetProgress - smoothP) * 0.065;
 
       var cp = catmull(posPts, smoothP);
       var lp = catmull(lookPts, smoothP);
