@@ -43,11 +43,21 @@
     /* For reduced motion: the hero copy sits in the open
        and the tour behaves like a plain scroll-through. */
     var sticky = tour.querySelector('.tour-sticky');
-    if(sticky && heroCopy) sticky.appendChild(heroCopy);
-    if(portal) portal.remove();
+    if(sticky && heroCopy){
+      sticky.appendChild(heroCopy);
+      if(portal) portal.remove();
+      portal = null;
+    } else if(portal){
+      /* The current cinematic design has no #heroCopy.
+         Keep its brand title instead of leaving a blank reduced-motion hero. */
+      portal.removeAttribute('aria-hidden');
+      portal.style.position = 'absolute';
+      portal.style.opacity = '1';
+      portal.style.visibility = 'visible';
+    }
     if(shutter) shutter.remove();
     if(mirrorChips) mirrorChips.remove();
-    portal = null; shutter = null; mirrorChips = null;
+    shutter = null; mirrorChips = null;
   }
 
   function updateTour(forcedProgress){
