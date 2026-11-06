@@ -1,0 +1,118 @@
+/* BHANU'S — cinematic concept demo visual polish, layered over legacy styles. */
+:root{--cinema-metal:#c99b55;--cinema-light:#f0d8a4;--cinema-night:#070606}
+body{background:#080706}
+.tour{height:640vh}
+.tour-sticky{background:transparent}
+.tour-sticky::before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 50% 72% at 50% 45%,transparent 25%,rgba(3,2,2,.3) 68%,rgba(2,2,2,.68) 100%);
+}
+.portal-brand{filter:drop-shadow(0 2px 18px rgba(0,0,0,.6))}
+.portal-title{
+  font-family:var(--serif);
+  font-size:clamp(35px,6vw,83px);font-weight:500;
+  letter-spacing:.15em;text-indent:.15em;color:#f5e8ca;
+  text-shadow:0 4px 40px #000,0 0 58px rgba(220,181,107,.31);
+}
+.portal-sub{font-size:clamp(9px,1.3vw,13px);color:#d7b978;letter-spacing:.45em}
+.cinematic-reveal{z-index:2}
+.cinematic-reveal-image{background-position:center 52%}
+.cinematic-portal-sheen{
+  position:absolute;left:50%;top:50%;width:min(60vw,690px);height:min(75vh,780px);
+  z-index:2;pointer-events:none;opacity:0;transform:translate(-50%,-50%) rotate(-20deg);
+  border-radius:50%;
+  background:conic-gradient(from 70deg,transparent,rgba(233,188,109,.15),transparent,rgba(244,214,146,.26),transparent);
+  filter:blur(22px);mix-blend-mode:screen;
+}
+.cinematic-film-grain{
+  position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.14;
+  background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,242,209,.035) 4px 5px);
+  mix-blend-mode:soft-light;
+}
+.cinematic-film-curtain{
+  position:absolute;left:0;right:0;height:clamp(16px,4.2vh,53px);
+  background:#030303;z-index:7;pointer-events:none;transform-origin:top center;
+  border-bottom:1px solid rgba(199,163,97,.12);
+}
+.cinematic-film-curtain.top{top:0}
+.cinematic-film-curtain.bottom{bottom:0;transform-origin:bottom center;border-bottom:0;border-top:1px solid rgba(199,163,97,.12)}
+.cinematic-story{
+  position:absolute;left:50%;top:46%;width:min(1000px,88vw);max-width:1000px;
+  transform:translate(-50%,-50%);z-index:6;pointer-events:none;
+  opacity:0;visibility:hidden;text-align:center;
+  color:#f8e9ce;text-shadow:0 10px 30px #000;
+  will-change:opacity,transform;
+}
+.cinematic-story .story-eyebrow{
+  display:block;margin:0 0 17px;font:600 10px/1.6 var(--sans);
+  letter-spacing:.54em;text-transform:uppercase;color:#e6c17c;
+}
+.cinematic-story .story-heading{
+  font:500 clamp(45px,9vw,140px)/.85 var(--serif);
+  text-transform:uppercase;letter-spacing:-.012em;
+  text-wrap:balance;margin:0;
+}
+.cinematic-story .story-heading em{font-style:italic;color:#dfb36a}
+.cinematic-story .story-detail{
+  margin:24px auto 0;max-width:550px;
+  font:400 clamp(12px,1.35vw,15px)/1.7 var(--sans);
+  color:#e2d5c0;letter-spacing:.02em;
+}
+.cinematic-story .story-actions{
+  display:flex;justify-content:center;gap:12px;flex-wrap:wrap;
+  margin-top:25px;
+}
+.cinematic-story .story-actions a{
+  pointer-events:auto;color:#19130b;background:#e7c184;text-shadow:none;
+  display:inline-flex;min-height:44px;align-items:center;
+  padding:12px 22px;text-decoration:none;
+  font:700 11px/1 var(--sans);letter-spacing:.17em;text-transform:uppercase;
+  border:1px solid rgba(255,241,219,.8);
+}
+.cinematic-story .story-actions a.ghost{
+  color:#f1d9b4;background:rgba(0,0,0,.4);border-color:rgba(219,179,108,.65);
+}
+.cinematic-chapter{bottom:clamp(36px,7vh,86px);z-index:8}
+.cinematic-chapter-title{letter-spacing:.25em}
+.cinematic-scroll-track{top:auto;bottom:0;height:3px;z-index:9}
+.cinematic-skip{bottom:clamp(37px,7vh,86px);z-index:9;letter-spacing:.19em}
+.cinematic-concept-note{color:#e4c99c;z-index:7;top:clamp(75px,12vh,140px)}
+.portal-hint{bottom:13vh}
+.tour-caption{z-index:5}
+.tour-caption h2{font-size:clamp(34px,5.4vw,66px)}
+.mirror-chips{z-index:6}
+.mchip{border-radius:3px;background:rgba(10,8,7,.78)}
+/* Editorial pages maintain the same luxury visual language as the intro. */
+.sheet{position:relative}
+.sheet .sec-title{font-size:clamp(44px,5.5vw,93px);line-height:.95;letter-spacing:-.025em}
+.sheet .kicker{font-size:11px;letter-spacing:.32em;color:#cda96c}
+.sheet .sec-lede{line-height:1.85}
+.sheet-alt{background:linear-gradient(145deg,#0c0a08,#17120e 60%,#100d0a)}
+.intro-photo,.gallery figure,.card{overflow:hidden}
+.intro-photo img,.gallery img,.card img,.bridal-img img{will-change:transform}
+.card{border-radius:0;outline:1px solid rgba(217,172,99,.12);outline-offset:-1px}
+.card img{filter:saturate(.82) contrast(1.08)}
+.card:focus-visible{outline:2px solid #f1cb8f;outline-offset:3px}
+.gallery figure{position:relative}
+.gallery figcaption{letter-spacing:.07em}
+#book{background:linear-gradient(180deg,#100d0a,#171109)}
+#book .book,#book .visit-card{box-shadow:0 18px 55px rgba(0,0,0,.17)}
+/* Reduce GPU and memory pressure on small/coarse devices. */
+@media(max-width:760px){
+  .portal-title{font-size:clamp(35px,9.2vw,62px)}
+  .cinematic-film-curtain{height:22px}
+  .cinematic-story{width:91vw;top:45%}
+  .cinematic-story .story-heading{font-size:clamp(40px,12.6vw,80px);line-height:.9}
+  .cinematic-story .story-eyebrow{font-size:9px;letter-spacing:.3em}
+  .cinematic-story .story-detail{font-size:12px;line-height:1.55}
+  .cinematic-concept-note{font-size:8px;top:80px}
+  .cinematic-chapter{bottom:36px;left:16px;max-width:54vw}
+  .cinematic-skip{bottom:37px;right:16px}
+  .sheet .sec-title{font-size:clamp(42px,9vw,64px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .cinematic-story,.cinematic-portal-sheen,.cinematic-film-curtain,.cinematic-film-grain{display:none!important}
+  .tour{height:100svh!important}
+  .cinematic-reveal-image{filter:none!important;transform:none!important}
+  .intro-photo img,.gallery img,.bridal-img img,.card img{will-change:auto}
+}
