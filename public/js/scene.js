@@ -706,6 +706,8 @@
 
       /* STAGE 1: Clean Initial Resting State & Text Gold Dust Dissolve (0.00 to 0.15 Scroll) */
       if(smoothP <= 0.15){
+        ringOuter.visible = true;
+        ringInner.visible = true;
         /* Single Gold Ring stays rock-solid and centered in the pitch-black void */
         portalHeroGroup.position.set(0, 2.15, 45.0);
         portalHeroGroup.rotation.set(0, 0, 0);
