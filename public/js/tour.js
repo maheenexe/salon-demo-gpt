@@ -50,10 +50,10 @@
     portal = null; shutter = null; mirrorChips = null;
   }
 
-  function updateTour(){
+  function updateTour(forcedProgress){
     var rect = tour.getBoundingClientRect();
     var total = tour.offsetHeight - window.innerHeight;
-    var p = total > 0 ? clamp01(Math.max(0, -rect.top) / total) : 0;
+    var p = typeof forcedProgress === 'number' ? clamp01(forcedProgress) : (total > 0 ? clamp01(Math.max(0, -rect.top) / total) : 0);
     tourProgress = p;
     window.tourProgress = p;
 
@@ -64,7 +64,7 @@
       }
     } else {
       /* Step A - Text Disperses into Gold Dust & Dissolves (Scroll 0.0 to 0.15) */
-      if(portal && portalBrand){
+      if(portal && portalBrand && !window.__cinematicScrollActive){
         if(p <= 0.15){
           var textP = clamp01(p / 0.15);
           var opacity = (1 - textP).toFixed(4);
@@ -166,7 +166,9 @@
     window.tourProgress = tourProgress;
   }
   window.tourProgress = 0;
-  window.addEventListener('scroll', updateTour, { passive: true });
-  window.addEventListener('resize', updateTour);
+  window.applyTourProgress = function(progress){ updateTour(progress); };
+  function nativeScrollUpdate(){ if(!window.__cinematicScrollActive) updateTour(); }
+  window.addEventListener('scroll', nativeScrollUpdate, { passive: true });
+  window.addEventListener('resize', nativeScrollUpdate);
   updateTour();
 
