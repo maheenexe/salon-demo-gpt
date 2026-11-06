@@ -22,6 +22,19 @@ const sheen = $("#cinematicPortalSheen");
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const quality = window.cinematicQuality || { tier: "medium" };
 
+// Optional 4K still produced by scripts/render_4k_concept.py.
+// Existing imagery remains the offline/preview fallback until production assets exist.
+if (concept && !quality.saveData) {
+  const still = new URL("assets/salon-concept-4k.webp", document.baseURI);
+  fetch(still, { method: "HEAD" }).then(response => {
+    const type = response.headers.get("content-type") || "";
+    if (response.ok && type.startsWith("image/")) {
+      concept.style.backgroundImage = "url(" + JSON.stringify(still.href) + ")";
+    }
+  }).catch(() => {});
+}
+
+
 const chapters = [
   [0, "01", "THE AWAKENING"],
   [0.12, "02", "SCULPTED LIGHT"],
