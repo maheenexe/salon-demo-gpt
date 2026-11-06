@@ -17,7 +17,8 @@ const progressBar = $("#cinematicScrollMeter");
 const chapterNumber = $("#cinematicChapterNumber");
 const chapterTitle = $("#cinematicChapterTitle");
 const stories = $$(".cinematic-story");
-const curtains = $$(".cinematic-film-curtain");
+const curtains = $(".cinematic-film-curtain");
+const invitation = stories[3];
 const sheen = $("#cinematicPortalSheen");
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const quality = window.cinematicQuality || { tier: "medium" };
@@ -81,9 +82,16 @@ if (!tour || !portal || !brand || !concept || reduced) {
   tour.classList.add("is-cinematic");
   let chapterIndex = -1;
   let lastProgress = -1;
+  if (invitation) invitation.inert = true;
 
   function displayProgress(value) {
     const p = gsap.utils.clamp(0, 1, value);
+    // Interactive CTA is keyboard-accessible only in its visible scroll chapter.
+    if (invitation) {
+      const canInteract = p >= 0.88 && p < 0.99;
+      invitation.inert = !canInteract;
+      invitation.setAttribute("aria-hidden", String(!canInteract));
+    }
     if (Math.abs(p - lastProgress) >= 0.00005) {
       lastProgress = p;
       if (typeof window.applyTourProgress === "function") {
