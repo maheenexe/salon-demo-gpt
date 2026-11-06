@@ -170,7 +170,7 @@
     try {
       renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
     } catch(e){ showFallback(); return; }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+    renderer.setPixelRatio((window.cinematicQuality && window.cinematicQuality.showcasePixelRatio) || Math.min(window.devicePixelRatio || 1, 1.25));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
     if('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;
