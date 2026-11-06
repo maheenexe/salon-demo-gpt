@@ -25,7 +25,13 @@ bpy.ops.object.delete(use_global=False)
 scene = bpy.context.scene
 scene.render.engine = "CYCLES"
 scene.cycles.samples = samples
-scene.cycles.use_denoising = True
+# The Ubuntu Blender package may be compiled without OpenImageDenoise.
+# Use regular Cycles sampling; do not require that optional external library.
+scene.cycles.use_denoising = False
+try:
+    bpy.context.view_layer.cycles.use_denoising = False
+except Exception:
+    pass
 scene.render.resolution_x = 3840
 scene.render.resolution_y = 2160
 scene.render.resolution_percentage = 100
