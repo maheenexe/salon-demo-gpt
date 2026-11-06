@@ -444,6 +444,26 @@
   );
   portalHeroGroup.add(ringInner);
 
+  /* Oversized architectural gold sculpture: abstract portal framing that expands
+     as the visitor approaches. Kept low-poly enough for real-time WebGL. */
+  var cinematicArches = new THREE.Group();
+  var archMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xcaa15c, metalness: 1, roughness: 0.19,
+    clearcoat: 0.8, clearcoatRoughness: 0.12, envMapIntensity: 2.2
+  });
+  for(var ai = 0; ai < 5; ai++){
+    var radius = 2.0 + ai * 0.40;
+    var arch = new THREE.Mesh(
+      new THREE.TorusGeometry(radius, 0.07 + ai * 0.006, 10, 90, Math.PI * 1.64),
+      archMaterial
+    );
+    arch.rotation.z = Math.PI * 0.68 + ai * 0.25;
+    arch.rotation.y = (ai % 2 ? 1 : -1) * 0.32;
+    arch.position.z = -ai * 0.35;
+    cinematicArches.add(arch);
+  }
+  portalHeroGroup.add(cinematicArches);
+
   var ringHeroLight = new THREE.PointLight(0xffdfa0, 3.0, 6, 1.8);
   ringHeroLight.position.set(0, 0, 1.0);
   portalHeroGroup.add(ringHeroLight);
@@ -672,6 +692,17 @@
 
       camera.position.copy(camPos);
       camera.lookAt(camLook);
+
+      /* Sculptural portal performs a deterministic, scroll-tied unfurling.
+         No unbounded motion: reversing scroll restores the original frame. */
+      var archReveal = Math.max(0, Math.min(1, (smoothP - 0.045) / 0.22));
+      cinematicArches.rotation.z = archReveal * 0.13;
+      cinematicArches.rotation.y = archReveal * 0.38;
+      cinematicArches.scale.setScalar(0.76 + archReveal * 0.34);
+      for(var archIndex = 0; archIndex < cinematicArches.children.length; archIndex++){
+        var archMesh = cinematicArches.children[archIndex];
+        archMesh.rotation.y = ((archIndex % 2) ? 1 : -1) * (0.32 + archReveal * 0.25);
+      }
 
       /* STAGE 1: Clean Initial Resting State & Text Gold Dust Dissolve (0.00 to 0.15 Scroll) */
       if(smoothP <= 0.15){
