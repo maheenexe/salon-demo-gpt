@@ -6,6 +6,7 @@
   function initGL(){
   if(window.updatePreloader) updatePreloader(20, 'Preparing 3D Salon Lounge…');
   var canvas = document.getElementById('gl');
+  var cinematicQuality = window.cinematicQuality || { pixelRatio: 1.25, shadowResolution: 1024, spotShadowResolution: 512, particleFactor: 0.6, frameInterval: 0 };
   if(!window.THREE){
     document.getElementById('gl-fallback').style.display = 'block';
     if(window.completePreloader) completePreloader();
@@ -19,7 +20,7 @@
     if(window.completePreloader) completePreloader();
     return;
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.setPixelRatio(cinematicQuality.pixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -346,7 +347,7 @@
     spot.position.set(0, 4.22, 0.9);
     spot.target = chair;
     spot.castShadow = true;
-    spot.shadow.mapSize.set(1024, 1024);
+    spot.shadow.mapSize.set(cinematicQuality.spotShadowResolution, cinematicQuality.spotShadowResolution);
     spot.shadow.bias = -0.0004;
     g.add(spot);
     stationSpots.push(spot);
@@ -356,13 +357,76 @@
   }
 
   var stations = [makeStation(-4.1), makeStation(0), makeStation(4.1)];
+
+  /* Cinema-grade salon detailing: ceiling coves, inlaid marble floor, a reception
+     console and warm architectural downlights. Conceptual, not actual floor plan. */
+  var bronzeLine = new THREE.MeshStandardMaterial({
+    color: 0x977044, metalness: 0.84, roughness: 0.23, emissive: 0x4b2d12,
+    emissiveIntensity: 0.12
+  });
+  var stoneDark = new THREE.MeshStandardMaterial({
+    color: 0x171517, metalness: 0.22, roughness: 0.3
+  });
+  var brassGlow = new THREE.MeshBasicMaterial({ color: 0xffc875 });
+  /* Floor inlay remains visible in grazing camera angles; shallow profile avoids z fighting */
+  for(var floorLine = -7; floorLine <= 7; floorLine += 2.5){
+    var inlayA = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.004, 18), bronzeLine);
+    inlayA.position.set(floorLine, 0.006, 1.2);
+    salonRoomGroup.add(inlayA);
+  }
+  for(var floorBack = -4; floorBack <= 9; floorBack += 2.5){
+    var inlayB = new THREE.Mesh(new THREE.BoxGeometry(16, 0.004, 0.014), bronzeLine);
+    inlayB.position.set(0, 0.008, floorBack);
+    salonRoomGroup.add(inlayB);
+  }
+  /* Recessed light boxes define the perspective as the camera travels forward. */
+  var ceilingPanelMaterial = new THREE.MeshStandardMaterial({
+    color: 0x0b0a0b, metalness: 0.35, roughness: 0.45
+  });
+  for(var ceilingZ = -4; ceilingZ <= 8; ceilingZ += 2.2){
+    var ceilingRib = new THREE.Mesh(new THREE.BoxGeometry(17.8, 0.18, 0.38), ceilingPanelMaterial);
+    ceilingRib.position.set(0, 5.15, ceilingZ);
+    ceilingRib.castShadow = true;
+    salonRoomGroup.add(ceilingRib);
+    var ceilingLight = new THREE.Mesh(new THREE.BoxGeometry(15.2, 0.012, 0.042), brassGlow);
+    ceilingLight.position.set(0, 5.042, ceilingZ - 0.10);
+    salonRoomGroup.add(ceilingLight);
+  }
+  /* Display shelves at the far right complete the lounge silhouette. */
+  var shelfUnit = new THREE.Group();
+  shelfUnit.position.set(6.45, 0, -4.72);
+  for(var shelfIndex = 0; shelfIndex < 4; shelfIndex++){
+    var shelf = box(1.3, 0.065, 0.42, bronzeLine, 0.025);
+    shelf.position.y = 1.2 + shelfIndex * 0.78;
+    shelfUnit.add(shelf);
+    for(var cosmetic = 0; cosmetic < 4; cosmetic++){
+      var cosmeticMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.055, 0.07, 0.21 + cosmetic * 0.03, 12),
+        cosmetic % 2 ? matGold : stoneDark
+      );
+      cosmeticMesh.position.set(-0.45 + cosmetic * 0.3, shelf.position.y + 0.18, 0);
+      shelfUnit.add(cosmeticMesh);
+    }
+  }
+  salonRoomGroup.add(shelfUnit);
+  /* Front-side reception vignette remains outside the central camera walkway. */
+  var reception = new THREE.Group();
+  reception.position.set(6.9, 0, 3.8);
+  var deskFront = box(2.4, 1.03, 0.8, stoneDark, 0.04);
+  deskFront.position.y = 0.57; reception.add(deskFront);
+  var deskLip = box(2.5, 0.065, 0.97, matGoldBright, 0.025);
+  deskLip.position.y = 1.12; reception.add(deskLip);
+  var deskStripe = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.025, 0.035), brassGlow);
+  deskStripe.position.set(0, 0.37, 0.421); reception.add(deskStripe);
+  salonRoomGroup.add(reception);
+
   if(window.updatePreloader) updatePreloader(75, 'Arranging Styling Stations…');
 
   /* warm directional key light casting soft shadows across the stations */
   var key = new THREE.DirectionalLight(0xfff2db, 0);
   key.position.set(4.5, 8.5, 6.5);
   key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.mapSize.set(cinematicQuality.shadowResolution, cinematicQuality.shadowResolution);
   key.shadow.bias = -0.0004;
   key.shadow.radius = 2.0;
   key.shadow.camera.left = -11;
@@ -393,7 +457,7 @@
   rings.visible = false;
 
   /* Salon ambient gold dust — reduced by 70% for pristine crisp clarity */
-  var COUNT = 75;
+  var COUNT = Math.max(20, Math.round(75 * cinematicQuality.particleFactor));
   var pos = new Float32Array(COUNT * 3);
   var seed = new Float32Array(COUNT);
   for(var i = 0; i < COUNT; i++){
@@ -464,12 +528,46 @@
   }
   portalHeroGroup.add(cinematicArches);
 
+  /* Floating architectural crown and cascading metallic fins form the
+     abstract threshold, with real-time PBR highlights. */
+  var portalCrown = new THREE.Group();
+  var crownMat = new THREE.MeshPhysicalMaterial({
+    color: 0xe2bc73, metalness: 1, roughness: 0.12,
+    clearcoat: 0.96, clearcoatRoughness: 0.085, envMapIntensity: 2.65
+  });
+  var crownBack = new THREE.Mesh(new THREE.TorusGeometry(3.15, 0.13, 16, 150), crownMat);
+  crownBack.position.z = -1.1;
+  portalCrown.add(crownBack);
+  for(var finIndex = 0; finIndex < 16; finIndex++){
+    var finAngle = finIndex / 16 * Math.PI * 2;
+    var finRadius = 2.65 + (finIndex % 4) * 0.18;
+    var fin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.4 + (finIndex % 3) * 0.4, 0.2), crownMat);
+    fin.position.set(Math.cos(finAngle) * finRadius, Math.sin(finAngle) * finRadius, -0.4 - finIndex % 3 * 0.12);
+    fin.rotation.z = -finAngle - Math.PI / 2;
+    portalCrown.add(fin);
+  }
+  /* Prismatic pillars add foreground parallax during the approach. */
+  for(var plSide = -1; plSide <= 1; plSide += 2){
+    var pylon = new THREE.Mesh(
+      new THREE.BoxGeometry(0.25, 5.2, 0.44), crownMat
+    );
+    pylon.position.set(plSide * 3.65, -0.25, -1.15);
+    pylon.rotation.z = plSide * -0.14;
+    portalCrown.add(pylon);
+    var edge = new THREE.Mesh(new THREE.BoxGeometry(0.055, 4.8, 0.06),
+      new THREE.MeshBasicMaterial({ color: 0xfbe0a7 }));
+    edge.position.set(plSide * 3.51, -0.12, -0.89);
+    portalCrown.add(edge);
+  }
+  portalHeroGroup.add(portalCrown);
+
+
   var ringHeroLight = new THREE.PointLight(0xffdfa0, 3.0, 6, 1.8);
   ringHeroLight.position.set(0, 0, 1.0);
   portalHeroGroup.add(ringHeroLight);
 
   /* Sparkling gold dust particles framing typography & dispersing on scroll */
-  var HERO_DUST_COUNT = 200;
+  var HERO_DUST_COUNT = Math.max(50, Math.round(200 * cinematicQuality.particleFactor));
   var heroDustInit = [];
   var heroDustPos = new Float32Array(HERO_DUST_COUNT * 3);
   var heroDustSeed = new Float32Array(HERO_DUST_COUNT);
@@ -561,7 +659,7 @@
   }
 
   /* 220 3D Volumetric Golden Light Streaks */
-  var STREAK_COUNT = 220;
+  var STREAK_COUNT = Math.max(65, Math.round(220 * cinematicQuality.particleFactor));
   var streakPos = new Float32Array(STREAK_COUNT * 2 * 3);
   var streakColors = new Float32Array(STREAK_COUNT * 2 * 3);
   var streakData = [];
@@ -655,10 +753,14 @@
   var camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
   var t0 = performance.now();
   var frameCount = 0;
+  var lastFrameAt = 0;
   function frame(){
     requestAnimationFrame(frame);
     if(document.hidden) return;
     if(tour.getBoundingClientRect().bottom < -50) return; /* covered by content sheets */
+    var nowFrame = performance.now();
+    if(frameCount > 2 && cinematicQuality.frameInterval && nowFrame - lastFrameAt < cinematicQuality.frameInterval) return;
+    lastFrameAt = nowFrame;
     try {
       frameCount++;
       var t = (performance.now() - t0) / 1000;
@@ -696,6 +798,9 @@
       /* Sculptural portal performs a deterministic, scroll-tied unfurling.
          No unbounded motion: reversing scroll restores the original frame. */
       var archReveal = Math.max(0, Math.min(1, (smoothP - 0.045) / 0.22));
+      portalCrown.rotation.z = archReveal * 0.16;
+      portalCrown.rotation.y = archReveal * -0.25;
+      portalCrown.scale.setScalar(0.9 + archReveal * 0.13);
       cinematicArches.rotation.z = archReveal * 0.13;
       cinematicArches.rotation.y = archReveal * 0.38;
       cinematicArches.scale.setScalar(0.76 + archReveal * 0.34);
