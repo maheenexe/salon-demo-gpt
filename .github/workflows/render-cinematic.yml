@@ -1,0 +1,37 @@
+name: Produce 4K salon concept still
+on:
+  push:
+    branches: [feature/cinematic-concept-complete]
+    paths:
+      - '.github/workflows/render-cinematic.yml'
+      - 'scripts/render_4k_concept.py'
+permissions:
+  contents: write
+jobs:
+  render:
+    if: github.repository == 'maheenexe/salon-demo-gpt'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install Blender and FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends blender ffmpeg
+      - name: Render 3840 x 2160 Cycles image
+        run: blender -b --python scripts/render_4k_concept.py -- --shot salon --samples 24
+      - name: Optimize rendered still for browser
+        run: |
+          ffmpeg -y -i renders/salon_4k.png -c:v libwebp -quality 83 -compression_level 6 public/assets/salon-concept-4k.webp
+          file public/assets/salon-concept-4k.webp
+      - name: Commit asset on feature branch only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/salon-concept-4k.webp
+          if ! git diff --cached --quiet; then
+            git commit -m "Add offline rendered 4K salon concept still"
+            git push origin HEAD:feature/cinematic-concept-complete
+          fi
