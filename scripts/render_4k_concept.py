@@ -16,6 +16,7 @@ def option(flag, default):
     return int(args[args.index(flag) + 1]) if flag in args else default
 samples = max(16, min(512, option("--samples", 128)))
 frames = max(0, min(900, option("--frames", 0)))
+shot = args[args.index("--shot") + 1] if "--shot" in args else "both"
 output = os.path.abspath(os.path.join(os.getcwd(), "renders"))
 os.makedirs(output, exist_ok=True)
 
@@ -197,11 +198,13 @@ if frames:
             look_at((0,2.1,-5.6))
         render_file("frame_%04d.png" % (n+1))
 else:
-    use_shot(True)
-    camera.location = (0,1.7,10)
-    look_at((0,1.7,0))
-    render_file("portal_4k.png")
-    use_shot(False)
-    camera.location = (0,2.1,8)
-    look_at((0,2.2,-5.4))
-    render_file("salon_4k.png")
+    if shot in ("both", "portal"):
+        use_shot(True)
+        camera.location = (0,1.7,10)
+        look_at((0,1.7,0))
+        render_file("portal_4k.png")
+    if shot in ("both", "salon"):
+        use_shot(False)
+        camera.location = (0,2.1,8)
+        look_at((0,2.2,-5.4))
+        render_file("salon_4k.png")
