@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="src/styles/sections.css">
   <link rel="stylesheet" href="src/styles/tunnel.css">
   <link rel="stylesheet" href="src/styles/showcase.css">
+  <link rel="stylesheet" href="/src/styles/cinematic.css">
 </head>
 <body>
 
@@ -121,6 +122,18 @@
         </div>
       </div>
 
+      <!-- Concept imagery for client presentation. This does not claim to depict the actual salon. -->
+      <div class="cinematic-reveal" aria-hidden="true">
+        <div id="cinematicRevealImage" class="cinematic-reveal-image" style="background-image:url('/assets/img-01.jpg')"></div>
+        <div id="cinematicLightSweep" class="cinematic-light-sweep"></div>
+      </div>
+      <p class="cinematic-concept-note">Bhanu's · Cinematic concept</p>
+      <div class="cinematic-chapter" aria-hidden="true">
+        <span id="cinematicChapterNumber" class="cinematic-chapter-number">01 / 06</span>
+        <span id="cinematicChapterTitle" class="cinematic-chapter-title">THE AWAKENING</span>
+      </div>
+      <a class="cinematic-skip" href="#showcase" aria-label="Skip cinematic intro and explore the salon">Skip intro</a>
+      <div class="cinematic-scroll-track" aria-hidden="true"><span id="cinematicScrollMeter" class="cinematic-scroll-meter"></span></div>
       <div class="tour-progress" aria-hidden="true">
         <b class="on"></b><b></b><b></b><b></b>
       </div>
@@ -466,6 +479,7 @@
   <script src="js/scene.js"></script>
   <script src="js/showcase.js"></script>
   <script src="js/tunnel.js"></script>
+  <script type="module" src="/src/experience/cinematic.js"></script>
 
 
 
