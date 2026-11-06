@@ -34,5 +34,8 @@ jobs:
           git add public/assets/salon-concept-4k.webp
           if ! git diff --cached --quiet; then
             git commit -m "Add offline rendered 4K salon concept still"
+            # Another commit may land on the review branch while rendering.
+            git fetch origin feature/cinematic-concept-complete
+            git rebase origin/feature/cinematic-concept-complete
             git push origin HEAD:feature/cinematic-concept-complete
           fi
