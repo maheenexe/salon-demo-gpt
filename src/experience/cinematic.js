@@ -78,6 +78,7 @@ if (!tour || !portal || !brand || !concept || reduced) {
   addEditorialMotion();
 } else {
   window.__cinematicScrollActive = true;
+  tour.classList.add("is-cinematic");
   let chapterIndex = -1;
   let lastProgress = -1;
 
@@ -109,7 +110,7 @@ if (!tour || !portal || !brand || !concept || reduced) {
       trigger: tour,
       start: "top top",
       end: "bottom bottom",
-      scrub: 0.68,
+      scrub: 0.28,
       anticipatePin: 0,
       invalidateOnRefresh: true,
       onRefresh: trigger => {
