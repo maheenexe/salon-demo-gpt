@@ -1,0 +1,17 @@
+/* Isolated salon AI widget, independent of the 3D scenes */
+.salon-ai-toggle{position:fixed;right:22px;bottom:94px;z-index:1000;border:1px solid #c9a35f;background:#15120e;color:#e7ca8b;border-radius:40px;padding:14px 19px;font:600 14px Arial,sans-serif;cursor:pointer;box-shadow:0 8px 30px #0008}
+.salon-ai-panel{position:fixed;right:22px;bottom:151px;width:min(370px,calc(100vw - 28px));height:min(490px,calc(100dvh - 175px));z-index:1001;background:#141210;border:1px solid #9f804c;border-radius:15px;color:#f4ead7;box-shadow:0 16px 55px #000b;display:flex;flex-direction:column;font:14px Arial,sans-serif;overflow:hidden}
+.salon-ai-panel[hidden]{display:none}
+.salon-ai-header{display:flex;justify-content:space-between;align-items:center;padding:17px;background:#211b14;border-bottom:1px solid #4d3e29}
+.salon-ai-header strong{font-size:15px;color:#e7ca8b}
+.salon-ai-header button{background:transparent;border:0;color:#fff;font-size:23px;cursor:pointer}
+.salon-ai-messages{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.salon-ai-message{margin:0;padding:11px 13px;max-width:88%;line-height:1.5;border-radius:12px;background:#30291f;white-space:pre-wrap;overflow-wrap:anywhere}
+.salon-ai-message.user{align-self:flex-end;background:#b39258;color:#14110c}
+.salon-ai-message.assistant{align-self:flex-start}
+.salon-ai-form{display:flex;gap:8px;padding:12px;border-top:1px solid #4d3e29}
+.salon-ai-form input{min-width:0;flex:1;border:1px solid #69563a;border-radius:7px;padding:11px;background:#211b14;color:#fff;font:inherit}
+.salon-ai-form button{border:0;border-radius:7px;padding:0 14px;background:#c9a35f;color:#18120a;font-weight:bold;cursor:pointer}
+.salon-ai-form button:disabled{opacity:.55;cursor:wait}
+.salon-ai-book{display:block;text-align:center;padding:10px;color:#e7ca8b;text-decoration:underline}
+@media(max-width:600px){.salon-ai-toggle{right:12px;bottom:84px}.salon-ai-panel{right:10px;bottom:140px;height:min(460px,calc(100dvh - 158px))}}
