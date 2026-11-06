@@ -7,6 +7,9 @@ on:
       - 'scripts/render_4k_concept.py'
 permissions:
   contents: write
+concurrency:
+  group: cinematic-render-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 jobs:
   render:
     if: github.repository == 'maheenexe/salon-demo-gpt' && github.head_ref == 'feature/cinematic-concept-complete'
@@ -21,13 +24,20 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends blender ffmpeg
+      - name: Detect existing generated asset
+        id: asset
+        run: |
+          if test -s public/assets/salon-concept-4k.webp; then echo 'exists=true' >> "$GITHUB_OUTPUT"; else echo 'exists=false' >> "$GITHUB_OUTPUT"; fi
       - name: Render 3840 x 2160 Cycles image
+        if: steps.asset.outputs.exists == 'false'
         run: blender -b --python scripts/render_4k_concept.py -- --shot salon --samples 24
       - name: Optimize rendered still for browser
+        if: steps.asset.outputs.exists == 'false'
         run: |
           ffmpeg -y -i renders/salon_4k.png -c:v libwebp -quality 83 -compression_level 6 public/assets/salon-concept-4k.webp
           file public/assets/salon-concept-4k.webp
       - name: Commit asset on feature branch only
+        if: steps.asset.outputs.exists == 'false'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
