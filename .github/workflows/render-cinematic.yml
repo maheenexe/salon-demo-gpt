@@ -1,7 +1,7 @@
 name: Produce 4K salon concept still
 on:
-  push:
-    branches: [feature/cinematic-concept-complete]
+  pull_request:
+    branches: [main]
     paths:
       - '.github/workflows/render-cinematic.yml'
       - 'scripts/render_4k_concept.py'
@@ -9,13 +9,14 @@ permissions:
   contents: write
 jobs:
   render:
-    if: github.repository == 'maheenexe/salon-demo-gpt'
+    if: github.repository == 'maheenexe/salon-demo-gpt' && github.head_ref == 'feature/cinematic-concept-complete'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
+          ref: ${{ github.head_ref }}
       - name: Install Blender and FFmpeg
         run: |
           sudo apt-get update -qq
