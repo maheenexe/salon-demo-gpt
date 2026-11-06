@@ -37,6 +37,11 @@ async function check(name, options) {
       const y = progress * Math.max(0, height - options.viewport.height);
       await page.evaluate(y => window.scrollTo({ top: y, behavior: "instant" }), y);
       await page.waitForTimeout(1400);
+      // The film's text and navigation layers must stay pinned with the camera.
+      if (progress > 0.1 && progress < 0.85) {
+        const top = await page.locator(".tour-sticky").evaluate(el => el.getBoundingClientRect().top);
+        if (Math.abs(top) > 5) throw new Error(name + ": cinematic stage scrolled out of view at " + progress + " (top=" + top + ")");
+      }
       const file = "artifacts/cinematic/" + name + "-" + Math.round(progress * 100) + ".png";
       await page.screenshot({ path: file });
     }
