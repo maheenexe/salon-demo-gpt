@@ -57,3 +57,8 @@ Keep the `<script>` order in `index.html` — the files share globals in that or
 - Prices, phone number and opening hours are placeholders — search for
   "placeholder" in `index.html` and `public/js/*.js` and replace with the real ones.
 - Booking sends the visitor to WhatsApp (wa.me link) with a pre-filled message.
+
+
+## Cinematic client-demo branch
+
+The `feature/cinematic-concept-complete` branch contains a scroll-directed luxury salon concept, updated Three.js portal and studio architecture, GSAP storytelling, responsive polish, and adaptive rendering. See [CINEMATIC_HANDOFF.md](CINEMATIC_HANDOFF.md) for how to preview it, generate optional 4K Blender assets, and test before merging. This is a **concept visualization**, not verified photography or a model of the actual studio. No AI features are included.

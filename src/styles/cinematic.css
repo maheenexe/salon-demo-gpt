@@ -1,0 +1,60 @@
+/* Phase 2: cinematic layers enhance, but do not replace, the existing WebGL salon. */
+.tour{isolation:isolate}
+.cinematic-reveal{
+  position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;
+}
+.cinematic-reveal-image{
+  position:absolute;inset:-8%;background-position:center;background-size:cover;
+  opacity:0;visibility:hidden;transform-origin:50% 48%;
+}
+.cinematic-reveal-image::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(9,7,5,.5),transparent 30%,transparent 70%,rgba(9,7,5,.55)),
+             linear-gradient(0deg,rgba(7,5,3,.5),transparent 40%,rgba(7,5,3,.18));
+}
+.cinematic-light-sweep{
+  position:absolute;inset:-40%;pointer-events:none;opacity:0;
+  background:linear-gradient(100deg,transparent 35%,rgba(240,206,141,.06) 47%,rgba(255,226,155,.38) 50%,rgba(240,206,141,.04) 53%,transparent 65%);
+  transform:skewX(-12deg);
+  mix-blend-mode:screen;
+}
+.cinematic-chapter{
+  position:absolute;left:clamp(18px,4vw,60px);bottom:clamp(26px,5.5vh,70px);
+  z-index:5;display:flex;flex-direction:column;gap:4px;pointer-events:none;
+  letter-spacing:.22em;text-transform:uppercase;text-shadow:0 3px 24px #000;
+}
+.cinematic-chapter-number{color:#ccad78;font-size:10px;font-weight:700}
+.cinematic-chapter-title{color:#f6ebd5;font-size:clamp(10px,1vw,12px);font-weight:600}
+.cinematic-skip{
+  position:absolute;right:clamp(16px,3.4vw,44px);bottom:clamp(22px,4.5vh,54px);
+  z-index:6;border-bottom:1px solid rgba(230,196,137,.5);
+  text-decoration:none;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:#f5dfb1;padding:6px 2px;line-height:1.5;
+}
+.cinematic-skip:hover,.cinematic-skip:focus-visible{color:#fff;border-color:#fff}
+.cinematic-scroll-track{
+  position:absolute;top:0;left:0;right:0;height:2px;z-index:7;
+  background:rgba(202,164,94,.12);pointer-events:none;
+}
+.cinematic-scroll-meter{
+  display:block;height:100%;width:100%;background:linear-gradient(90deg,#715229,#f3d99e);
+  transform:scaleX(0);transform-origin:left center;will-change:transform;
+}
+.cinematic-concept-note{
+  position:absolute;left:clamp(18px,4vw,60px);top:clamp(92px,13vh,130px);
+  z-index:4;color:rgba(247,228,196,.56);font-size:9px;font-weight:700;
+  letter-spacing:.26em;text-transform:uppercase;pointer-events:none;
+}
+@media(max-width:700px){
+  .cinematic-chapter{bottom:24px;left:16px;max-width:54vw}
+  .cinematic-skip{bottom:24px;right:16px;font-size:10px}
+  .cinematic-concept-note{top:76px;left:16px;font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  .tour{height:100svh!important}
+  .tour-sticky{position:relative}
+  .cinematic-reveal-image{opacity:.66!important;visibility:visible!important;filter:none!important;transform:none!important}
+  .cinematic-light-sweep{display:none}
+  .cinematic-scroll-track,.cinematic-chapter{display:none}
+  .cinematic-skip{bottom:30px}
+}
