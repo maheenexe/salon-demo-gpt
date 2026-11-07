@@ -670,6 +670,7 @@
       savedOverviewScrollY = window.scrollY;
       oldBodyOverflow = document.body.style.overflow;
       stage.classList.add('locked');
+      document.body.classList.add('showcase-is-zoomed');
       document.body.style.overflow = 'hidden';
       mode = 'zoom';
       requestAnimationFrame(function(){
@@ -693,6 +694,7 @@
       }
       if(mode === 'wall'){
         stage.classList.remove('locked');
+        document.body.classList.remove('showcase-is-zoomed');
         document.body.style.overflow = oldBodyOverflow;
         return;
       }
@@ -701,6 +703,7 @@
       flyTo(overview.pos, overview.look, 0.52, function(){
         mode = 'wall';
         stage.classList.remove('locked');
+        document.body.classList.remove('showcase-is-zoomed');
         document.body.style.overflow = oldBodyOverflow;
         layout();
         // Restore the exact place on the showcase; never make users hunt for it.
