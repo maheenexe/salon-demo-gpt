@@ -24,6 +24,7 @@
 .tour.is-cinematic .cinematic-story{
  left:clamp(26px,8.5vw,160px);width:min(760px,75vw);
  text-align:left;top:47%;max-width:none;
+ transform:translateY(-50%);
 }
 .tour.is-cinematic .cinematic-story .story-heading{
  font-size:clamp(45px,7.6vw,116px);
