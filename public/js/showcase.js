@@ -541,13 +541,27 @@
         var it = items.find(function(entry){return entry.dept.key === key});
         if(!it) return;
         var config = MODEL_ASSETS[key];
-        loader.load(config.url,
+        var localUrl = new URL('assets/service-3d/' + key + '.glb', document.baseURI).href;
+        // Prefer the GitHub-bundled GLB. If an older preview branch hasn't
+        // received its binary assets yet, try the original CC0 CDN instead.
+        function failed(source, err){
+          if(source === 'local'){
+            loader.load(config.url,
+              function(gltf){placeLoadedModel(it,gltf,config);},
+              undefined,
+              function(remoteError){
+                console.info('Original showcase model retained for ' + key + ' after both sources failed',
+                  remoteError && remoteError.message ? remoteError.message : 'offline');
+              });
+          } else {
+            console.info('Original showcase model retained for ' + key,
+              err && err.message ? err.message : 'offline');
+          }
+        }
+        loader.load(localUrl,
           function(gltf){placeLoadedModel(it,gltf,config);},
           undefined,
-          function(err){
-            console.info('Salon model fallback retained for '+key,
-              err && err.message ? err.message : 'network or decoding error');
-          }
+          function(err){failed('local',err);}
         );
       });
     }
