@@ -117,6 +117,11 @@
     if('inert' in panel) panel.inert = false;
     panel.removeAttribute('inert');
     panel.setAttribute('aria-hidden', 'false');
+    if(isCompactShowcase()){
+      panel.setAttribute('role', 'dialog');
+      panel.setAttribute('aria-modal', 'true');
+      document.body.style.overflow = 'hidden';
+    }
     /* The service index opens a readable panel without forcing the 3D canvas
        into fullscreen. Direct 3D station clicks retain the camera-zoom option. */
     var fromScene = triggerEl === canvas || (triggerEl && triggerEl.classList && triggerEl.classList.contains('show-chip'));
@@ -149,6 +154,8 @@
     panel.setAttribute('inert', '');
     /* 5. Apply aria-hidden now that no descendant retains focus */
     panel.setAttribute('aria-hidden', 'true');
+    panel.removeAttribute('aria-modal');
+    if(isCompactShowcase()) document.body.style.overflow = '';
     stage.classList.remove('detail');
     if(glReady && window.__showClose && !isCompactShowcase()){ window.__showClose(); }
     lastTrigger = null;
