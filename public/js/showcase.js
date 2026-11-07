@@ -465,6 +465,104 @@
       items.push({ dept: d, group: obj, niche: niche, ringMat: ringMat, baseY: 0.98, phase: i * 1.13, chip: chipEls[d.key], flame: obj.userData.flame || null });
     });
 
+    /*
+     * Licensed, web-ready GLB assets replace the placeholder shapes.
+     * Source: 3DAssets.dev (CC0 1.0), direct immutable CORS-enabled CDN URLs.
+     * Models are visual only; see SERVICE_3D_ASSETS.md for sources and licensing.
+     * Keep all procedural objects as immediate fallback until real models load.
+     */
+    var MODEL_ASSETS = {
+      hair: {
+        url: 'https://cdn.3dassets.dev/assets/16799/v1/model.glb',
+        size: 1.78, rotation: 0.10
+      },
+      treatment: {
+        url: 'https://cdn.3dassets.dev/assets/29639/v1/model.glb',
+        size: 1.76, rotation: -0.16
+      },
+      men: {
+        url: 'https://cdn.3dassets.dev/assets/29634/v1/model.glb',
+        size: 1.68, rotation: 0.14
+      },
+      skin: {
+        url: 'https://cdn.3dassets.dev/assets/25938/v1/model.glb',
+        size: 1.67, rotation: 0.12
+      },
+      spa: {
+        url: 'https://cdn.3dassets.dev/assets/29644/v1/model.glb',
+        size: 1.72, rotation: 0
+      }
+    };
+    var loadedRealModels = 0;
+    stage.dataset.realModelsLoaded = '0';
+    function placeLoadedModel(it, gltf, config){
+      if(!gltf || !gltf.scene) return;
+      var model = gltf.scene;
+      model.updateMatrixWorld(true);
+      var bounds = new THREE.Box3().setFromObject(model);
+      if(bounds.isEmpty()) return;
+      var extent = bounds.getSize(new THREE.Vector3());
+      var longest = Math.max(extent.x, extent.y, extent.z);
+      if(!isFinite(longest) || longest <= 0.00001) return;
+      var factor = config.size / longest;
+      var centre = bounds.getCenter(new THREE.Vector3());
+      model.scale.setScalar(factor);
+      model.position.set(-centre.x * factor, -centre.y * factor, -centre.z * factor);
+      model.rotation.y = config.rotation || 0;
+      model.traverse(function(child){
+        if(child.isMesh){
+          child.castShadow = false;
+          child.receiveShadow = true;
+          if(child.material && !Array.isArray(child.material)){
+            child.material.side = THREE.DoubleSide;
+            child.material.needsUpdate = true;
+          }
+        }
+      });
+      // Remove the stylized placeholder only when a textured model is ready.
+      while(it.group.children.length){
+        var old = it.group.children[0];
+        it.group.remove(old);
+        old.traverse(function(c){ if(c.geometry) c.geometry.dispose(); });
+      }
+      it.group.add(model);
+      it.flame = null;
+      it.group.userData.modelLoaded = true;
+      loadedRealModels += 1;
+      stage.dataset.realModelsLoaded = String(loadedRealModels);
+      stage.dispatchEvent(new CustomEvent('salon:service-model-loaded', {
+        detail:{ key:it.dept.key, count:loadedRealModels }
+      }));
+    }
+    function startRealModels(){
+      if(!THREE.GLTFLoader) return;
+      var loader = new THREE.GLTFLoader();
+      Object.keys(MODEL_ASSETS).forEach(function(key){
+        var it = items.find(function(entry){return entry.dept.key === key});
+        if(!it) return;
+        var config = MODEL_ASSETS[key];
+        loader.load(config.url,
+          function(gltf){placeLoadedModel(it,gltf,config);},
+          undefined,
+          function(err){
+            console.info('Salon model fallback retained for '+key,
+              err && err.message ? err.message : 'network or decoding error');
+          }
+        );
+      });
+    }
+    if('IntersectionObserver' in window){
+      var assetObserver = new IntersectionObserver(function(entries){
+        if(entries[0].isIntersecting){
+          assetObserver.disconnect();
+          startRealModels();
+        }
+      },{rootMargin:'500px 0px',threshold:0});
+      assetObserver.observe(stage);
+    } else {
+      startRealModels();
+    }
+
     /* lights */
     scene.add(new THREE.AmbientLight(0x8a764f, 0.55));
     var key = new THREE.DirectionalLight(0xffe3b0, 1.15);
