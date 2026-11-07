@@ -1,0 +1,258 @@
+/* Responsive service explorer: semantic service choices alongside the optional 3D wall.
+   Loaded after existing styles so the cinematic intro, gallery and booking stay unchanged. */
+#showcase{
+  /* Remove the legacy blur stacking context: fixed service details must appear
+     above the site header and floating WhatsApp shortcut. */
+  isolation:auto;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  margin-top:0;
+  padding-top:clamp(50px,7vw,90px);
+  background:linear-gradient(165deg,#11100d 0%,#0c0a08 60%,#080706 100%)!important;
+  isolation:isolate;
+}
+#showcase::before{display:none}
+#showcase>.wrap{padding-bottom:clamp(28px,4vw,46px)!important}
+#showcase .sec-lede{max-width:720px;margin-inline:auto}
+.show-explorer{
+  width:min(1540px,calc(100% - clamp(28px,5vw,84px)));
+  margin:0 auto clamp(40px,7vw,90px);
+  display:grid;
+  grid-template-columns:minmax(300px,400px) minmax(0,1fr);
+  gap:clamp(18px,2.4vw,36px);
+  align-items:stretch;
+}
+.show-service-browser{
+  min-width:0;
+  background:linear-gradient(150deg,rgba(33,26,18,.96),rgba(16,13,10,.97));
+  border:1px solid rgba(199,162,101,.32);
+  padding:clamp(22px,2.7vw,38px);
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 24px 70px rgba(0,0,0,.19);
+}
+.show-browser-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:.28em;color:#e2bf82;
+  text-transform:uppercase;margin:0 0 16px;
+}
+.show-service-browser h3{
+  font-family:var(--serif);font-size:clamp(32px,3.7vw,49px);
+  font-weight:500;line-height:.95;margin:0;color:var(--ink);
+  text-wrap:balance;
+}
+.show-service-browser h3 em{color:var(--gold-bright)}
+.show-browser-summary{
+  margin:16px 0 20px;font-size:14px;line-height:1.65;color:var(--ink-soft);
+}
+.show-service-choices{display:grid;gap:7px;min-width:0}
+.show-service-choice{
+  appearance:none;display:grid;grid-template-columns:30px minmax(0,1fr) auto;
+  align-items:center;gap:12px;text-align:left;min-width:0;width:100%;
+  border:1px solid rgba(201,163,95,.18);border-radius:3px;
+  padding:13px 12px;background:rgba(7,7,7,.34);color:var(--ink);
+  font:inherit;cursor:pointer;transition:background .2s,border-color .2s;
+}
+.show-service-choice:hover,.show-service-choice:focus-visible{
+  background:rgba(201,163,95,.12);border-color:rgba(221,184,109,.7);
+}
+.show-service-choice:focus-visible{outline:2px solid #efc884;outline-offset:2px}
+.show-service-choice .choice-index{
+  font-size:11px;font-weight:700;color:var(--gold-bright);letter-spacing:.05em;
+}
+.show-service-choice .choice-name{
+  display:block;min-width:0;font-family:var(--serif);
+  font-size:clamp(17px,1.5vw,21px);line-height:1.12;
+}
+.show-service-choice .choice-price{
+  color:var(--gold-bright);font-size:11px;font-weight:700;
+  letter-spacing:.025em;white-space:nowrap;
+}
+.show-browser-note{
+  color:var(--ink-dim);font-size:11px;line-height:1.55;
+  margin:20px 0 0;
+}
+#showcase .show-stage{
+  width:100%;min-width:0;min-height:610px;
+  height:clamp(610px,74vh,780px);
+  border:1px solid rgba(201,163,95,.24);
+  background:radial-gradient(ellipse 90% 85% at 50% 40%,#342817,#120e0a 70%);
+  overflow:hidden;
+}
+#showcase .show-stage.locked{
+  position:fixed;inset:0;width:100vw;height:100dvh;
+  min-height:0;z-index:80;border:none;
+}
+/* Always use the explicit accessible department selector instead of tiny labels
+   projected over the 3D objects. */
+#showcase .show-chips,#showcase .show-hint{display:none!important}
+#showcase .show-stage.detail .show-vignette{opacity:1}
+#showcase .show-detail{
+  max-width:100%;overflow-y:auto;overscroll-behavior:contain;
+  box-sizing:border-box;
+}
+#showcase .show-detail-list li{
+  gap:10px;align-items:flex-start;
+}
+#showcase .show-detail-list li span{min-width:0;flex:1;overflow-wrap:anywhere}
+#showcase .show-detail-list li i{display:none}
+#showcase .show-detail-cta .btn{min-height:44px}
+#showcase .show-fallback-grid{max-width:900px}
+#showcase .show-fallback-grid button{
+  padding:22px 12px;
+  overflow-wrap:anywhere;
+}
+#services .service-tab-hint{
+  text-align:center;color:var(--ink-dim);font-size:13px;
+  margin:24px auto 14px;max-width:660px;line-height:1.6;
+}
+#services .tabs{
+  display:flex;flex-wrap:wrap;
+  gap:9px;justify-content:center;margin:12px auto 24px;
+  max-width:1080px;
+}
+#services .tab{white-space:normal;line-height:1.3;min-height:45px;text-align:center}
+#services .tab:focus-visible{outline:2px solid var(--gold-bright);outline-offset:3px}
+#services .panel{max-width:1050px;margin:0 auto}
+#services .panel.active{display:grid;gap:0}
+#services .svc{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:"heading price" "description price";
+  align-items:center;column-gap:clamp(16px,3vw,34px);row-gap:4px;
+  padding:20px clamp(8px,1.5vw,20px);
+  border-bottom:1px solid var(--line-soft);
+}
+#services .svc h3{
+  grid-area:heading;min-width:0;white-space:normal;
+  font-size:clamp(20px,2.4vw,28px);line-height:1.12;
+  overflow-wrap:break-word;
+}
+#services .svc p{
+  grid-area:description;min-width:0;order:initial;
+  flex:none;font-size:14px;line-height:1.55;overflow-wrap:anywhere;
+}
+#services .svc .dots{display:none}
+#services .svc .price{grid-area:price;margin:0;justify-self:end;align-self:center;font-size:23px;text-align:right}
+#services .svc .price small{font-size:10px}
+@media(max-width:1120px){
+  .show-explorer{grid-template-columns:minmax(260px,340px) minmax(0,1fr)}
+  .show-service-choice{grid-template-columns:22px minmax(0,1fr);gap:8px}
+  .show-service-choice .choice-price{grid-column:2}
+  #showcase .show-stage{height:650px;min-height:600px}
+}
+@media(max-width:900px){
+  .show-explorer{display:block;width:min(800px,calc(100% - 32px));}
+  .show-service-browser{padding:clamp(22px,4vw,32px)}
+  .show-service-choices{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .show-service-choice{grid-template-columns:24px minmax(0,1fr);align-content:start;min-height:102px}
+  .show-service-choice .choice-name{font-size:20px}
+  .show-service-choice .choice-price{grid-column:2}
+  /* Avoid the expensive, postage-stamp WebGL showcase on tablets and phones.
+     Service detail remains a readable modal panel. */
+  #showcase .show-stage{
+    display:block;height:0!important;min-height:0!important;
+    border:0!important;background:transparent!important;overflow:visible;
+  }
+  #showcase .show-stage.locked{position:relative;inset:auto;width:auto}
+  #showcase #gl2,#showcase .show-vignette,#showcase .show-chips,#showcase .show-hint,
+  #showcase .show-fallback{display:none!important}
+  #showcase .show-detail{
+    position:fixed;inset:0;top:0;bottom:0;left:0;right:0;
+    width:100vw;height:100dvh;max-height:100dvh;z-index:120;
+    padding:clamp(22px,5vw,38px);
+    transform:translateY(104%);border:0;overflow:auto;
+    border-top:2px solid var(--gold);
+  }
+  #showcase .show-detail.open{transform:translateY(0)}
+  #showcase .show-detail h3{font-size:clamp(31px,5vw,46px)}
+  #showcase .show-detail-list{overflow:visible;flex:0 1 auto}
+  #showcase .show-detail-cta{padding:12px 0 22px}
+}
+@media(max-width:600px){
+  #showcase{padding-top:50px}
+  #showcase>.wrap{padding-bottom:25px!important}
+  .show-explorer{width:calc(100% - 28px);margin-bottom:52px}
+  .show-service-browser{padding:22px 17px}
+  .show-service-choices{grid-template-columns:1fr;gap:8px}
+  .show-service-choice{
+    grid-template-columns:28px minmax(0,1fr) auto;
+    min-height:70px;padding:12px 10px;
+  }
+  .show-service-choice .choice-price{grid-column:auto;font-size:11px}
+  .show-service-choice .choice-name{font-size:19px}
+  .show-browser-summary{font-size:13px}
+  #services .tabs{
+    display:flex;flex-wrap:nowrap;justify-content:flex-start;
+    overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch;
+    gap:8px;margin:14px -14px 24px;padding:2px 14px 16px;
+    scrollbar-width:thin;scrollbar-color:var(--gold) transparent;
+  }
+  #services .tab{
+    flex:0 0 auto;min-height:46px;max-width:210px;
+    padding:11px 15px;scroll-snap-align:start;
+    font-size:11px;white-space:normal;
+  }
+  #services .svc{padding:17px 2px;gap:7px 16px}
+  #services .svc h3{font-size:22px}
+  #services .svc p{font-size:13px}
+  #services .svc .price{font-size:20px}
+  #services .service-tab-hint{font-size:12px}
+}
+@media(max-width:380px){
+  .show-service-choice{grid-template-columns:25px minmax(0,1fr);}
+  .show-service-choice .choice-price{grid-column:2}
+  #services .svc{grid-template-columns:minmax(0,1fr);grid-template-areas:"heading" "description" "price"}
+  #services .svc .price{justify-self:start;text-align:left;margin-top:2px}
+  #services .svc .price small{text-align:left;display:inline;margin-right:6px}
+}
+@media(prefers-reduced-motion:reduce){
+  .show-service-choice,#services .panel.active{transition:none;animation:none}
+}
+
+/* Keep deep-link section headings clear of the fixed navigation. */
+#showcase,#services{scroll-margin-top:clamp(76px,10vh,110px)}
+.show-explorer{scroll-margin-top:86px}
+@media(max-width:900px){
+  #showcase .show-detail{z-index:9999}
+}
+
+/* The service dialog is portaled directly to body on <=900px devices.
+   Opaque styling and viewport-level stacking keep the content clickable,
+   even when the navigation and WhatsApp shortcuts use fixed positioning. */
+@media(max-width:900px){
+  body>.show-detail-overlay{
+    box-sizing:border-box;
+    position:fixed;inset:0;
+    top:0;left:0;right:0;bottom:0;
+    width:100vw;height:100dvh;max-width:100vw;max-height:100dvh;
+    z-index:99999;
+    display:flex;flex-direction:column;
+    overflow-y:auto;overscroll-behavior:contain;
+    background:linear-gradient(160deg,#251b10,#100e0a 82%);
+    border:0;border-top:2px solid var(--gold);
+    padding:clamp(22px,5vw,40px);
+    transform:translateY(105%);
+    opacity:0;visibility:hidden;pointer-events:none;
+  }
+  body>.show-detail-overlay.open{
+    transform:translateY(0);
+    opacity:1;visibility:visible;pointer-events:auto;
+  }
+  body>.show-detail-overlay .show-back{flex:none;align-self:flex-start}
+  body>.show-detail-overlay h3{font-size:clamp(30px,5vw,45px)}
+  body>.show-detail-overlay .show-detail-list{
+    overflow-y:visible;
+    flex:0 0 auto;
+    min-height:0;
+    margin:8px 0 10px;
+  }
+  body>.show-detail-overlay .show-detail-cta{padding:12px 0 24px}
+  body>.show-detail-overlay .show-detail-list li{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:10px;
+    align-items:start;
+  }
+  body>.show-detail-overlay .show-detail-list li span{min-width:0;overflow-wrap:anywhere}
+  body>.show-detail-overlay .show-detail-list li i{display:none}
+}

@@ -26,6 +26,10 @@
   var hint = document.getElementById('showHint');
   var fallback = document.getElementById('showFallback');
   var fallbackGrid = document.getElementById('showFallbackGrid');
+  var serviceChoices = document.getElementById('showServiceChoices');
+  function isCompactShowcase(){
+    return window.matchMedia('(max-width: 900px)').matches;
+  }
   var panel = document.getElementById('showDetail');
   var elName = document.getElementById('showDetailName');
   var elTag = document.getElementById('showDetailTag');
@@ -34,6 +38,21 @@
   var current = null;      /* dept object in detail view */
   var lastTrigger = null;
   var glReady = false;
+
+  /* Place the compact detail dialog directly below <body>: ancestors such as
+     the 3D stage must not trap it below fixed navigation or WhatsApp controls. */
+  function syncDetailPlacement(){
+    if(!panel || !stage) return;
+    if(isCompactShowcase()){
+      if(panel.parentNode !== document.body) document.body.appendChild(panel);
+      panel.classList.add('show-detail-overlay');
+    } else if(!current){
+      if(panel.parentNode !== stage) stage.appendChild(panel);
+      panel.classList.remove('show-detail-overlay');
+    }
+  }
+  syncDetailPlacement();
+  window.addEventListener('resize', syncDetailPlacement, { passive:true });
 
   if(panel){
     if('inert' in panel) panel.inert = true;
@@ -62,6 +81,28 @@
     fb.appendChild(s);
     fb.addEventListener('click', function(){ openDetail(d, fb); });
     fallbackGrid.appendChild(fb);
+
+    /* Semantic service browser stays legible even when WebGL isn't available. */
+    if(serviceChoices){
+      var choice = document.createElement('button');
+      choice.type = 'button';
+      choice.className = 'show-service-choice';
+      choice.setAttribute('aria-label', d.name + ', starting at ' + d.from + '. View services');
+      var index = document.createElement('span');
+      index.className = 'choice-index';
+      index.textContent = String(DEPTS.indexOf(d) + 1).padStart(2, '0');
+      var name = document.createElement('span');
+      name.className = 'choice-name';
+      name.textContent = d.name;
+      var price = document.createElement('span');
+      price.className = 'choice-price';
+      price.textContent = 'From ' + d.from;
+      choice.appendChild(index);
+      choice.appendChild(name);
+      choice.appendChild(price);
+      choice.addEventListener('click', function(){ openDetail(d, choice); });
+      serviceChoices.appendChild(choice);
+    }
   });
 
   /* ---------- detail panel ---------- */
@@ -91,8 +132,19 @@
     if('inert' in panel) panel.inert = false;
     panel.removeAttribute('inert');
     panel.setAttribute('aria-hidden', 'false');
-    if(glReady && window.__showOpen){ window.__showOpen(d); }
-    else { panel.classList.add('open'); }
+    if(isCompactShowcase()){
+      panel.setAttribute('role', 'dialog');
+      panel.setAttribute('aria-modal', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+    /* The service index opens a readable panel without forcing the 3D canvas
+       into fullscreen. Direct 3D station clicks retain the camera-zoom option. */
+    var fromScene = triggerEl === canvas || (triggerEl && triggerEl.classList && triggerEl.classList.contains('show-chip'));
+    if(fromScene && glReady && window.__showOpen && !isCompactShowcase()){
+      window.__showOpen(d);
+    } else {
+      panel.classList.add('open');
+    }
     var backBtn = document.getElementById('showBack');
     if(backBtn) setTimeout(function(){ try { backBtn.focus(); } catch(e){} }, 100);
   }
@@ -117,8 +169,10 @@
     panel.setAttribute('inert', '');
     /* 5. Apply aria-hidden now that no descendant retains focus */
     panel.setAttribute('aria-hidden', 'true');
+    panel.removeAttribute('aria-modal');
+    if(isCompactShowcase()) document.body.style.overflow = '';
     stage.classList.remove('detail');
-    if(glReady && window.__showClose){ window.__showClose(); }
+    if(glReady && window.__showClose && !isCompactShowcase()){ window.__showClose(); }
     lastTrigger = null;
   }
   document.getElementById('showBack').addEventListener('click', function(e){
@@ -165,6 +219,15 @@
 
   /* ---------- the 3D wall ---------- */
   function initShowcase(){
+    /* On compact layouts the six large semantic service buttons replace the
+       costly and cramped 3D wall. The details and booking actions still work. */
+    if(isCompactShowcase() && serviceChoices){
+      canvas.style.display = 'none';
+      chipsBox.style.display = 'none';
+      hint.style.display = 'none';
+      fallback.hidden = true;
+      return;
+    }
     if(!window.THREE) { showFallback(); return; }
     var renderer;
     try {

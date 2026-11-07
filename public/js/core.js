@@ -79,14 +79,42 @@
   }, 3200);
 
   /* ---------------- Tabs ---------------- */
-  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('#services .tab'));
+  var servicePanels = Array.prototype.slice.call(document.querySelectorAll('#services .panel'));
   function activateTab(key){
-    tabs.forEach(function(t){ t.setAttribute('aria-selected', t.getAttribute('data-panel') === key ? 'true' : 'false'); });
-    document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('active', p.id === 'panel-' + key); });
+    tabs.forEach(function(t){
+      var active = t.getAttribute('data-panel') === key;
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+      t.tabIndex = active ? 0 : -1;
+    });
+    servicePanels.forEach(function(p){
+      var active = p.id === 'panel-' + key;
+      p.classList.toggle('active', active);
+      p.hidden = !active;
+    });
   }
-  tabs.forEach(function(t){
-    t.addEventListener('click', function(){ activateTab(t.getAttribute('data-panel')); });
+  tabs.forEach(function(t, index){
+    var key = t.getAttribute('data-panel');
+    t.id = 'service-tab-' + key;
+    t.setAttribute('aria-controls', 'panel-' + key);
+    var panel = document.getElementById('panel-' + key);
+    if(panel) panel.setAttribute('aria-labelledby', t.id);
+    t.addEventListener('click', function(){ activateTab(key); });
+    t.addEventListener('keydown', function(e){
+      var next = index;
+      if(e.key === 'ArrowRight') next = (index + 1) % tabs.length;
+      else if(e.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
+      else if(e.key === 'Home') next = 0;
+      else if(e.key === 'End') next = tabs.length - 1;
+      else return;
+      e.preventDefault();
+      var target = tabs[next];
+      activateTab(target.getAttribute('data-panel'));
+      target.focus();
+      target.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reduced ? 'instant' : 'smooth' });
+    });
   });
+  activateTab('hair');
   document.querySelectorAll('[data-goto]').forEach(function(el){
     el.addEventListener('click', function(){ activateTab(el.getAttribute('data-goto')); });
   });
