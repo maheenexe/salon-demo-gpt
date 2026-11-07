@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="src/styles/cinematic.css">
   <link rel="stylesheet" href="src/styles/cinematic-finish.css">
   <link rel="stylesheet" href="src/styles/photoreal.css">
+  <link rel="stylesheet" href="src/styles/services-responsive.css">
 </head>
 <body>
 
@@ -183,7 +184,15 @@
         <p class="sec-lede center">All six departments, displayed like pieces in a gallery. Tap any station and the camera glides right up to it — its full menu opens beside it.</p>
       </div>
     </div>
-    <div class="show-stage" id="showStage">
+    <div class="show-explorer">
+      <div class="show-service-browser">
+        <p class="show-browser-eyebrow">OUR EXPERTISE · 06 DEPARTMENTS</p>
+        <h3>Find your <em>signature service.</em></h3>
+        <p class="show-browser-summary">Select a department to see its treatments, starting prices and booking options.</p>
+        <div id="showServiceChoices" class="show-service-choices" aria-label="Browse salon departments"></div>
+        <p class="show-browser-note">Indicative starting prices. Final pricing is confirmed by the salon.</p>
+      </div>
+      <div class="show-stage" id="showStage">
       <canvas id="gl2" aria-label="Interactive 3D showcase of Bhanu's The Hair Studio departments"></canvas>
       <div class="show-vignette" aria-hidden="true"></div>
       <div class="show-chips" id="showChips"></div>
@@ -206,6 +215,7 @@
           <button class="btn btn-ghost" id="showMenu" type="button">Full Menu</button>
         </div>
       </aside>
+      </div>
     </div>
   </section>
 
@@ -276,6 +286,7 @@
         <p class="sec-lede center">Precision styling, advanced hair treatments, royal beard grooming, bridal artistry and skin care — explore everything we offer.</p>
       </div>
 
+      <p class="service-tab-hint">Choose a category to explore its services and starting prices.</p>
       <div class="tabs" role="tablist" aria-label="Service departments">
         <button class="tab" role="tab" aria-selected="true" data-panel="hair">Precision Hair</button>
         <button class="tab" role="tab" aria-selected="false" data-panel="treatment">Advanced Treatments</button>
