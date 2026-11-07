@@ -284,3 +284,15 @@
   #showDetail .show-close{transition:none}
   #showDetail .show-close:hover{transform:none}
 }
+
+/* A 3D department zoom is an immersive viewport, not the normal site header.
+   Hide page-fixed controls only during that view so the X remains clickable. */
+body.showcase-is-zoomed > header.nav,
+body.showcase-is-zoomed .wa-float{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+body.showcase-is-zoomed #showcase{
+  z-index:500!important;
+}
