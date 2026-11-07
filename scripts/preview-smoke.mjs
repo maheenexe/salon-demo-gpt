@@ -26,6 +26,13 @@ async function check(name, options) {
   if (!structural.booking || structural.storyCount !== 4 || !structural.chapter || !structural.quality) {
     throw new Error(name + ": required site elements are missing " + JSON.stringify(structural));
   }
+  for (const file of ["portal-to-studio.webp", "luxury-salon.webp"]) {
+    const asset = await page.request.get(base + "/assets/photoreal/" + file);
+    if (asset.status() !== 200 || !String(asset.headers()["content-type"] || "").includes("image/")) {
+      throw new Error(name + ": missing generated photo " + file + " (" + asset.status() + ")");
+    }
+  }
+
 
   if (options.reducedMotion === "reduce") {
     await page.screenshot({ path: "artifacts/cinematic/reduced-motion.png" });
@@ -37,6 +44,16 @@ async function check(name, options) {
       const y = progress * Math.max(0, height - options.viewport.height);
       await page.evaluate(y => window.scrollTo({ top: y, behavior: "instant" }), y);
       await page.waitForTimeout(1400);
+      if (progress >= 0.70) {
+        const film = await page.locator("#photorealFilm").evaluate(el => {
+          const style = getComputedStyle(el);
+          const plate = document.querySelector("#photorealSalon");
+          return {opacity:Number(style.opacity), visibility:style.visibility, image:plate?.style.backgroundImage || ""};
+        });
+        if (film.opacity < .9 || film.visibility !== "visible" || !film.image.includes("luxury-salon.webp")) {
+          throw new Error(name + ": photoreal interior failed to reveal " + JSON.stringify(film));
+        }
+      }
       // The film's text and navigation layers must stay pinned with the camera.
       if (progress > 0.1 && progress < 0.85) {
         const top = await page.locator(".tour-sticky").evaluate(el => el.getBoundingClientRect().top);
