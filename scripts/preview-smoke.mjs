@@ -54,6 +54,21 @@ async function check(name, options) {
           throw new Error(name + ": photoreal interior failed to reveal " + JSON.stringify(film));
         }
       }
+      // Confirm the actual active titles remain inside the viewport.
+      if (progress > .10) {
+        const layout = await page.evaluate(() => {
+          return Array.from(document.querySelectorAll(".cinematic-story")).filter(node => {
+            const style = getComputedStyle(node);
+            return style.visibility === "visible" && Number(style.opacity) > .3;
+          }).map(node => {
+            const rect = node.getBoundingClientRect();
+            return { left: rect.left, right: rect.right, screen: innerWidth };
+          });
+        });
+        if (layout.some(item => item.left < -8 || item.right > item.screen + 8)) {
+          throw new Error(name + ": story title clipped outside viewport " + JSON.stringify(layout));
+        }
+      }
       // The film's text and navigation layers must stay pinned with the camera.
       if (progress > 0.1 && progress < 0.85) {
         const top = await page.locator(".tour-sticky").evaluate(el => el.getBoundingClientRect().top);
