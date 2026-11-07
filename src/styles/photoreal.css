@@ -13,7 +13,7 @@
 }
 .photoreal-plate::after{
  content:"";position:absolute;inset:0;
- background:linear-gradient(90deg,rgba(8,6,5,.72),rgba(9,7,6,.28) 38%,rgba(10,8,7,.03) 75%),
+ background:linear-gradient(90deg,rgba(8,6,5,1) 0%,rgba(8,6,5,.99) 34%,rgba(8,6,5,.86) 47%,rgba(8,6,5,.44) 63%,rgba(8,6,5,.03) 80%),
  linear-gradient(0deg,rgba(7,5,4,.50),transparent 27%,transparent 80%,rgba(7,5,4,.22));
 }
 .photoreal-plate.is-portal{opacity:1;visibility:visible}
@@ -51,6 +51,7 @@
  }
  .tour.is-cinematic .cinematic-story .story-detail{margin:19px auto 0}
  .tour.is-cinematic .cinematic-story .story-actions{justify-content:center}
+ .cinematic-skip{bottom:106px;right:20px}
 }
 @media(prefers-reduced-motion:reduce){
  .photoreal-film{visibility:visible!important;opacity:1!important}
