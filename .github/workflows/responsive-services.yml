@@ -1,0 +1,44 @@
+name: Responsive services browser test
+on:
+  push:
+    branches:
+      - fix/responsive-services-showcase
+  pull_request:
+    branches:
+      - feature/photoreal-luxury-salon
+permissions:
+  contents: read
+jobs:
+  responsive-services:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install application and browser
+        run: |
+          npm ci
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify production build
+        run: npm run build
+      - name: Test service layout and navigation
+        run: |
+          npm run dev -- --host 127.0.0.1 > /tmp/vite-services.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 50); do
+            if curl -fsS http://127.0.0.1:5173/ > /dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/test-responsive-services.mjs
+      - name: Save responsive screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: responsive-services-screenshots
+          path: artifacts/responsive-services
+          if-no-files-found: ignore
