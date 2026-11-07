@@ -117,8 +117,14 @@
     if('inert' in panel) panel.inert = false;
     panel.removeAttribute('inert');
     panel.setAttribute('aria-hidden', 'false');
-    if(glReady && window.__showOpen && !isCompactShowcase()){ window.__showOpen(d); }
-    else { panel.classList.add('open'); }
+    /* The service index opens a readable panel without forcing the 3D canvas
+       into fullscreen. Direct 3D station clicks retain the camera-zoom option. */
+    var fromScene = triggerEl === canvas || (triggerEl && triggerEl.classList && triggerEl.classList.contains('show-chip'));
+    if(fromScene && glReady && window.__showOpen && !isCompactShowcase()){
+      window.__showOpen(d);
+    } else {
+      panel.classList.add('open');
+    }
     var backBtn = document.getElementById('showBack');
     if(backBtn) setTimeout(function(){ try { backBtn.focus(); } catch(e){} }, 100);
   }
