@@ -39,6 +39,21 @@
   var lastTrigger = null;
   var glReady = false;
 
+  /* Place the compact detail dialog directly below <body>: ancestors such as
+     the 3D stage must not trap it below fixed navigation or WhatsApp controls. */
+  function syncDetailPlacement(){
+    if(!panel || !stage) return;
+    if(isCompactShowcase()){
+      if(panel.parentNode !== document.body) document.body.appendChild(panel);
+      panel.classList.add('show-detail-overlay');
+    } else if(!current){
+      if(panel.parentNode !== stage) stage.appendChild(panel);
+      panel.classList.remove('show-detail-overlay');
+    }
+  }
+  syncDetailPlacement();
+  window.addEventListener('resize', syncDetailPlacement, { passive:true });
+
   if(panel){
     if('inert' in panel) panel.inert = true;
     panel.setAttribute('inert', '');
