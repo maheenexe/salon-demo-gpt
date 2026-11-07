@@ -175,9 +175,11 @@
     if(glReady && window.__showClose && !isCompactShowcase()){ window.__showClose(); }
     lastTrigger = null;
   }
-  document.getElementById('showBack').addEventListener('click', function(e){
-    if(e && e.currentTarget && typeof e.currentTarget.blur === 'function') e.currentTarget.blur();
-    closeDetail();
+  ['showBack', 'showClose'].forEach(function(id){
+    var button = document.getElementById(id);
+    if(button) button.addEventListener('click', function(){
+      closeDetail();
+    });
   });
   document.addEventListener('keydown', function(e){
     if(e.key === 'Escape' && current) closeDetail();
@@ -497,6 +499,9 @@
     var focusPos = new THREE.Vector3(), focusLook = new THREE.Vector3();
     var mode = 'wall';   /* wall | zoom | detail | zoomout */
     var anim = null;
+    var savedOverviewScrollY = 0;
+    var oldBodyOverflow = '';
+    var detailOpenTimer = null;
     var wallScale = 1;
     var curItem = null;
     var hoverItem = null;
@@ -550,25 +555,48 @@
     window.__showOpen = function(d){
       curItem = itemOf(d);
       if(!curItem) { panel.classList.add('open'); return; }
+      savedOverviewScrollY = window.scrollY;
+      oldBodyOverflow = document.body.style.overflow;
       stage.classList.add('locked');
       document.body.style.overflow = 'hidden';
       mode = 'zoom';
       requestAnimationFrame(function(){
+        if(!current || current !== d) return;
         layout();
         computeFocus(curItem);
-        flyTo(focusPos, focusLook, 1.15, function(){ mode = 'detail'; });
-        setTimeout(function(){ panel.classList.add('open'); }, reduced ? 0 : 420);
+        flyTo(focusPos, focusLook, 0.8, function(){
+          if(current === d) mode = 'detail';
+        });
+        if(detailOpenTimer) clearTimeout(detailOpenTimer);
+        detailOpenTimer = setTimeout(function(){
+          if(current === d) panel.classList.add('open');
+          detailOpenTimer = null;
+        }, reduced ? 0 : 260);
       });
     };
     window.__showClose = function(){
-      if(mode === 'wall'){ stage.classList.remove('locked'); document.body.style.overflow = ''; return; }
+      if(detailOpenTimer){
+        clearTimeout(detailOpenTimer);
+        detailOpenTimer = null;
+      }
+      if(mode === 'wall'){
+        stage.classList.remove('locked');
+        document.body.style.overflow = oldBodyOverflow;
+        return;
+      }
       mode = 'zoomout';
       curItem = null;
-      flyTo(overview.pos, overview.look, 1.0, function(){
+      flyTo(overview.pos, overview.look, 0.52, function(){
         mode = 'wall';
         stage.classList.remove('locked');
-        document.body.style.overflow = '';
+        document.body.style.overflow = oldBodyOverflow;
         layout();
+        // Restore the exact place on the showcase; never make users hunt for it.
+        window.scrollTo(0, savedOverviewScrollY);
+        if(serviceChoices && lastTrigger === canvas){
+          var firstChoice = serviceChoices.querySelector('button');
+          if(firstChoice) firstChoice.focus({preventScroll:true});
+        }
       });
     };
 
