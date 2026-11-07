@@ -47,9 +47,19 @@ try{
     if(!(await page.locator("#showDetailName").textContent()).includes("Precision"))
       throw new Error(name+": wrong department selected");
     await page.locator("#showDetail").screenshot({path:directory+"/details-"+name+".png"});
+    const scrollBeforeClose = await page.evaluate(() => window.scrollY);
+    const closeX = page.locator("#showClose");
+    if(!(await closeX.isVisible())) throw new Error(name + ": close X is not visible");
+    await closeX.click();
+    if(await page.locator("#showDetail").evaluate(el => el.classList.contains("open")))
+      throw new Error(name + ": X failed to close details");
+    const scrollAfterClose = await page.evaluate(() => window.scrollY);
+    if(Math.abs(scrollAfterClose - scrollBeforeClose) > 10)
+      throw new Error(name + ": closing changed the scroll position");
+    await choices.nth(1).click();
     await page.locator("#showBack").click();
     if(await page.locator("#showDetail").evaluate(el=>el.classList.contains("open")))
-      throw new Error(name+": detail did not close");
+      throw new Error(name+": All departments did not close details");
     await page.evaluate(()=>document.getElementById("services").scrollIntoView({behavior:"instant"}));
     await page.waitForTimeout(450);
     const tabs=page.locator("#services .tab");
