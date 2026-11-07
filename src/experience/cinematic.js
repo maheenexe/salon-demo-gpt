@@ -153,7 +153,7 @@ if (!tour || !portal || !brand || !concept || reduced) {
 
   function storyWindow(node, enter, hold, exit) {
     if (!node) return;
-    gsap.set(node, { autoAlpha: 0, y: 70, scale: 1.045 });
+    gsap.set(node, { autoAlpha: 0, xPercent: 0, yPercent: -50, y: 70, scale: 1.045 });
     movie.to(node, { autoAlpha: 1, y: 0, scale: 1, duration: 0.055, ease: "power2.out" }, enter);
     movie.to(node, { autoAlpha: 1, duration: hold - enter - 0.055 }, enter + 0.055);
     movie.to(node, { autoAlpha: 0, y: -46, scale: 0.97, duration: exit - hold }, hold);
