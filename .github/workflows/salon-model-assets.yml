@@ -1,0 +1,50 @@
+name: Vendor licensed salon 3D objects
+on:
+  push:
+    branches: [feature/realistic-service-objects-and-close]
+    paths:
+      - '.github/workflows/salon-model-assets.yml'
+permissions:
+  contents: write
+jobs:
+  vendor-glb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/realistic-service-objects-and-close
+          persist-credentials: true
+      - name: Download CC0 GLB assets
+        run: |
+          mkdir -p public/assets/service-3d
+          curl --fail --location --retry 2 --max-time 90 -sS             https://cdn.3dassets.dev/assets/16799/v1/model.glb -o public/assets/service-3d/hair.glb
+          curl --fail --location --retry 2 --max-time 90 -sS             https://cdn.3dassets.dev/assets/29639/v1/model.glb -o public/assets/service-3d/treatment.glb
+          curl --fail --location --retry 2 --max-time 90 -sS             https://cdn.3dassets.dev/assets/29634/v1/model.glb -o public/assets/service-3d/men.glb
+          curl --fail --location --retry 2 --max-time 90 -sS             https://cdn.3dassets.dev/assets/25938/v1/model.glb -o public/assets/service-3d/skin.glb
+          curl --fail --location --retry 2 --max-time 90 -sS             https://cdn.3dassets.dev/assets/29644/v1/model.glb -o public/assets/service-3d/spa.glb
+      - name: Verify binary GLB headers
+        run: |
+          python - <<'PY'
+          import struct
+          from pathlib import Path
+          for path in sorted(Path("public/assets/service-3d").glob("*.glb")):
+              data = path.read_bytes()
+              if len(data) < 40 or data[:4] != b"glTF":
+                  raise SystemExit(f"Invalid glTF binary: {path}")
+              version, declared_size = struct.unpack_from("<II", data, 4)
+              if version != 2 or declared_size != len(data):
+                  raise SystemExit(f"GLB size/header mismatch: {path}")
+              print(path, len(data), "bytes; valid glTF v2")
+          PY
+      - name: Commit source models to feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/service-3d
+          if ! git diff --cached --quiet; then
+            git commit -m "Add five licensed CC0 salon objects"
+            git fetch origin feature/realistic-service-objects-and-close
+            git rebase origin/feature/realistic-service-objects-and-close
+            git push origin HEAD:feature/realistic-service-objects-and-close
+          fi

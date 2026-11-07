@@ -256,3 +256,43 @@
   body>.show-detail-overlay .show-detail-list li span{min-width:0;overflow-wrap:anywhere}
   body>.show-detail-overlay .show-detail-list li i{display:none}
 }
+
+/* Details exit: always visible at the top of the service panel. */
+#showDetail .show-close{
+  appearance:none;position:sticky;top:0;z-index:12;
+  display:grid;place-items:center;align-self:flex-end;flex:none;
+  width:46px;height:46px;margin:0 0 -46px auto;
+  border:1px solid rgba(232,201,135,.5);border-radius:50%;
+  background:rgba(10,8,6,.94);color:#f8dfb2;
+  cursor:pointer;transition:background .2s,border-color .2s,transform .2s;
+}
+#showDetail .show-close:hover{
+  background:#3a2b1a;border-color:#f4d39b;transform:rotate(90deg);
+}
+#showDetail .show-close:focus-visible{
+  outline:3px solid #e7bc79;outline-offset:3px;
+}
+#showDetail .show-back{margin-right:58px;min-height:44px}
+#showcase .show-stage.locked{z-index:400}
+@media(max-width:900px){
+  body>.show-detail-overlay .show-close{
+    top:0;right:0;margin:0 0 -46px auto;
+  }
+  body>.show-detail-overlay .show-back{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+  #showDetail .show-close{transition:none}
+  #showDetail .show-close:hover{transform:none}
+}
+
+/* A 3D department zoom is an immersive viewport, not the normal site header.
+   Hide page-fixed controls only during that view so the X remains clickable. */
+body.showcase-is-zoomed > header.nav,
+body.showcase-is-zoomed .wa-float{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+body.showcase-is-zoomed #showcase{
+  z-index:500!important;
+}

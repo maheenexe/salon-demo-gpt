@@ -175,9 +175,11 @@
     if(glReady && window.__showClose && !isCompactShowcase()){ window.__showClose(); }
     lastTrigger = null;
   }
-  document.getElementById('showBack').addEventListener('click', function(e){
-    if(e && e.currentTarget && typeof e.currentTarget.blur === 'function') e.currentTarget.blur();
-    closeDetail();
+  ['showBack', 'showClose'].forEach(function(id){
+    var button = document.getElementById(id);
+    if(button) button.addEventListener('click', function(){
+      closeDetail();
+    });
   });
   document.addEventListener('keydown', function(e){
     if(e.key === 'Escape' && current) closeDetail();
@@ -463,6 +465,118 @@
       items.push({ dept: d, group: obj, niche: niche, ringMat: ringMat, baseY: 0.98, phase: i * 1.13, chip: chipEls[d.key], flame: obj.userData.flame || null });
     });
 
+    /*
+     * Licensed, web-ready GLB assets replace the placeholder shapes.
+     * Source: 3DAssets.dev (CC0 1.0), direct immutable CORS-enabled CDN URLs.
+     * Models are visual only; see SERVICE_3D_ASSETS.md for sources and licensing.
+     * Keep all procedural objects as immediate fallback until real models load.
+     */
+    var MODEL_ASSETS = {
+      hair: {
+        url: 'https://cdn.3dassets.dev/assets/16799/v1/model.glb',
+        size: 1.78, rotation: 0.10
+      },
+      treatment: {
+        url: 'https://cdn.3dassets.dev/assets/29639/v1/model.glb',
+        size: 1.76, rotation: -0.16
+      },
+      men: {
+        url: 'https://cdn.3dassets.dev/assets/29634/v1/model.glb',
+        size: 1.68, rotation: 0.14
+      },
+      skin: {
+        url: 'https://cdn.3dassets.dev/assets/25938/v1/model.glb',
+        size: 1.67, rotation: 0.12
+      },
+      spa: {
+        url: 'https://cdn.3dassets.dev/assets/29644/v1/model.glb',
+        size: 1.72, rotation: 0
+      }
+    };
+    var loadedRealModels = 0;
+    stage.dataset.realModelsLoaded = '0';
+    function placeLoadedModel(it, gltf, config){
+      if(!gltf || !gltf.scene) return;
+      var model = gltf.scene;
+      model.updateMatrixWorld(true);
+      var bounds = new THREE.Box3().setFromObject(model);
+      if(bounds.isEmpty()) return;
+      var extent = bounds.getSize(new THREE.Vector3());
+      var longest = Math.max(extent.x, extent.y, extent.z);
+      if(!isFinite(longest) || longest <= 0.00001) return;
+      var factor = config.size / longest;
+      var centre = bounds.getCenter(new THREE.Vector3());
+      model.scale.setScalar(factor);
+      model.position.set(-centre.x * factor, -centre.y * factor, -centre.z * factor);
+      model.rotation.y = config.rotation || 0;
+      model.traverse(function(child){
+        if(child.isMesh){
+          child.castShadow = false;
+          child.receiveShadow = true;
+          if(child.material && !Array.isArray(child.material)){
+            child.material.side = THREE.DoubleSide;
+            child.material.needsUpdate = true;
+          }
+        }
+      });
+      // Remove the stylized placeholder only when a textured model is ready.
+      while(it.group.children.length){
+        var old = it.group.children[0];
+        it.group.remove(old);
+        old.traverse(function(c){ if(c.geometry) c.geometry.dispose(); });
+      }
+      it.group.add(model);
+      it.flame = null;
+      it.group.userData.modelLoaded = true;
+      loadedRealModels += 1;
+      stage.dataset.realModelsLoaded = String(loadedRealModels);
+      stage.dispatchEvent(new CustomEvent('salon:service-model-loaded', {
+        detail:{ key:it.dept.key, count:loadedRealModels }
+      }));
+    }
+    function startRealModels(){
+      if(!THREE.GLTFLoader) return;
+      var loader = new THREE.GLTFLoader();
+      Object.keys(MODEL_ASSETS).forEach(function(key){
+        var it = items.find(function(entry){return entry.dept.key === key});
+        if(!it) return;
+        var config = MODEL_ASSETS[key];
+        var localUrl = new URL('assets/service-3d/' + key + '.glb', document.baseURI).href;
+        // Prefer the GitHub-bundled GLB. If an older preview branch hasn't
+        // received its binary assets yet, try the original CC0 CDN instead.
+        function failed(source, err){
+          if(source === 'local'){
+            loader.load(config.url,
+              function(gltf){placeLoadedModel(it,gltf,config);},
+              undefined,
+              function(remoteError){
+                console.info('Original showcase model retained for ' + key + ' after both sources failed',
+                  remoteError && remoteError.message ? remoteError.message : 'offline');
+              });
+          } else {
+            console.info('Original showcase model retained for ' + key,
+              err && err.message ? err.message : 'offline');
+          }
+        }
+        loader.load(localUrl,
+          function(gltf){placeLoadedModel(it,gltf,config);},
+          undefined,
+          function(err){failed('local',err);}
+        );
+      });
+    }
+    if('IntersectionObserver' in window){
+      var assetObserver = new IntersectionObserver(function(entries){
+        if(entries[0].isIntersecting){
+          assetObserver.disconnect();
+          startRealModels();
+        }
+      },{rootMargin:'500px 0px',threshold:0});
+      assetObserver.observe(stage);
+    } else {
+      startRealModels();
+    }
+
     /* lights */
     scene.add(new THREE.AmbientLight(0x8a764f, 0.55));
     var key = new THREE.DirectionalLight(0xffe3b0, 1.15);
@@ -497,6 +611,9 @@
     var focusPos = new THREE.Vector3(), focusLook = new THREE.Vector3();
     var mode = 'wall';   /* wall | zoom | detail | zoomout */
     var anim = null;
+    var savedOverviewScrollY = 0;
+    var oldBodyOverflow = '';
+    var detailOpenTimer = null;
     var wallScale = 1;
     var curItem = null;
     var hoverItem = null;
@@ -550,25 +667,51 @@
     window.__showOpen = function(d){
       curItem = itemOf(d);
       if(!curItem) { panel.classList.add('open'); return; }
+      savedOverviewScrollY = window.scrollY;
+      oldBodyOverflow = document.body.style.overflow;
       stage.classList.add('locked');
+      document.body.classList.add('showcase-is-zoomed');
       document.body.style.overflow = 'hidden';
       mode = 'zoom';
       requestAnimationFrame(function(){
+        if(!current || current !== d) return;
         layout();
         computeFocus(curItem);
-        flyTo(focusPos, focusLook, 1.15, function(){ mode = 'detail'; });
-        setTimeout(function(){ panel.classList.add('open'); }, reduced ? 0 : 420);
+        flyTo(focusPos, focusLook, 0.8, function(){
+          if(current === d) mode = 'detail';
+        });
+        if(detailOpenTimer) clearTimeout(detailOpenTimer);
+        detailOpenTimer = setTimeout(function(){
+          if(current === d) panel.classList.add('open');
+          detailOpenTimer = null;
+        }, reduced ? 0 : 260);
       });
     };
     window.__showClose = function(){
-      if(mode === 'wall'){ stage.classList.remove('locked'); document.body.style.overflow = ''; return; }
+      if(detailOpenTimer){
+        clearTimeout(detailOpenTimer);
+        detailOpenTimer = null;
+      }
+      if(mode === 'wall'){
+        stage.classList.remove('locked');
+        document.body.classList.remove('showcase-is-zoomed');
+        document.body.style.overflow = oldBodyOverflow;
+        return;
+      }
       mode = 'zoomout';
       curItem = null;
-      flyTo(overview.pos, overview.look, 1.0, function(){
+      flyTo(overview.pos, overview.look, 0.52, function(){
         mode = 'wall';
         stage.classList.remove('locked');
-        document.body.style.overflow = '';
+        document.body.classList.remove('showcase-is-zoomed');
+        document.body.style.overflow = oldBodyOverflow;
         layout();
+        // Restore the exact place on the showcase; never make users hunt for it.
+        window.scrollTo(0, savedOverviewScrollY);
+        if(serviceChoices && lastTrigger === canvas){
+          var firstChoice = serviceChoices.querySelector('button');
+          if(firstChoice) firstChoice.focus({preventScroll:true});
+        }
       });
     };
 

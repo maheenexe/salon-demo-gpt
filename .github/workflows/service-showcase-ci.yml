@@ -1,0 +1,51 @@
+name: Realistic 3D service showcase
+on:
+  push:
+    branches: [feature/realistic-service-objects-and-close]
+    paths:
+      - '.github/workflows/service-showcase-ci.yml'
+      - 'public/js/showcase.js'
+      - 'index.html'
+      - 'scripts/test-service-3d.mjs'
+      - 'scripts/test-responsive-services.mjs'
+      - 'src/styles/services-responsive.css'
+  pull_request:
+    branches: [fix/responsive-services-showcase]
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install site and Playwright
+        run: |
+          npm ci
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Build site
+        run: npm run build
+      - name: Test service actions and loaded 3D models
+        run: |
+          npm run dev -- --host 127.0.0.1 > /tmp/vite.log 2>&1 &
+          PID=$!
+          trap 'kill $PID || true' EXIT
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:5173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/test-responsive-services.mjs
+          node scripts/test-service-3d.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: service-showcase-preview
+          path: |
+            artifacts/service-3d/
+            artifacts/responsive-services/
+          if-no-files-found: ignore
