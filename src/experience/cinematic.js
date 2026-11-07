@@ -20,6 +20,23 @@ const stories = $$(".cinematic-story");
 const curtains = $$(".cinematic-film-curtain");
 const invitation = stories[3];
 const sheen = $("#cinematicPortalSheen");
+const photoFilm = $("#photorealFilm");
+const photoPortal = $("#photorealPortal");
+const photoSalon = $("#photorealSalon");
+
+// Replaceable, original concept stills. If they have not been added yet,
+// retain the bundled Blender render so the website never shows a broken image.
+[
+  [photoPortal, "assets/photoreal/portal-to-studio.webp"],
+  [photoSalon, "assets/photoreal/luxury-salon.webp"]
+].forEach(([element, path]) => {
+  if (!element) return;
+  const file = new URL(path, document.baseURI);
+  const image = new Image();
+  image.decoding = "async";
+  image.onload = () => { element.style.backgroundImage = 'url("' + file.href + '")'; };
+  image.src = file.href;
+});
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const quality = window.cinematicQuality || { tier: "medium" };
 
@@ -163,6 +180,24 @@ if (!tour || !portal || !brand || !concept || reduced) {
     }, 0.495);
     movie.to(sweep, { autoAlpha: 0, xPercent: 95, duration: 0.13 }, 0.655);
   }
+  if (photoFilm && photoPortal && photoSalon) {
+    // The realistic studio is a rendered photographic plate, not a fake
+    // real-time 4K claim. Scroll zoom and wipes remain fully reversible.
+    movie.fromTo(photoFilm,
+      { autoAlpha: 0 },
+      { autoAlpha: 1, duration: 0.13 }, 0.27
+    );
+    movie.fromTo(photoPortal,
+      { autoAlpha: 1, scale: 1.11, xPercent: -1.7 },
+      { autoAlpha: 0, scale: 1.19, xPercent: 1.3, duration: 0.19 }, 0.55
+    );
+    movie.fromTo(photoSalon,
+      { autoAlpha: 0, scale: 1.15, xPercent: 1.2 },
+      { autoAlpha: 1, scale: 1.04, xPercent: 0, duration: 0.18 }, 0.56
+    );
+    movie.to(photoSalon, { scale: 1, duration: 0.2 }, 0.77);
+  }
+
   if (sheen) {
     movie.fromTo(sheen,
       { autoAlpha: 0.15, rotate: -28, scale: 0.7 },
