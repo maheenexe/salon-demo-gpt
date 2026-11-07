@@ -1,0 +1,31 @@
+name: Cinematic site build
+on:
+  push:
+    branches: [feature/cinematic-concept-complete]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned packages
+        run: npm ci
+      - name: Build production website
+        run: npm run build
+      - name: Verify generated site
+        run: |
+          test -f dist/index.html
+          test -f dist/js/scene.js
+          test -f dist/js/quality.js
+          test -f dist/js/core.js
+          test -f dist/assets/img-01.jpg
+          grep -q 'bookForm' dist/index.html

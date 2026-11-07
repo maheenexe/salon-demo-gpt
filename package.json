@@ -1,1 +1,17 @@
-{"description":"Bhanu's The Hair Studio, Indore — 3D website","devDependencies":{"vite":"^5.4.0"},"name":"matrix-salon","private":true,"scripts":{"build":"vite build","dev":"vite --port 5173","preview":"vite preview --port 5173"},"version":"1.0.0"}
+{
+  "description": "Bhanu's The Hair Studio, Indore — 3D website",
+  "devDependencies": {
+    "vite": "^5.4.0"
+  },
+  "name": "matrix-salon",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --port 5173",
+    "preview": "vite preview --port 5173"
+  },
+  "version": "1.0.0",
+  "dependencies": {
+    "gsap": "^3.15.0"
+  }
+}
